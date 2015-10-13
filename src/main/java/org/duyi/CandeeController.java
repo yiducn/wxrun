@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -35,10 +36,29 @@ public class CandeeController {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(sis);
-            String s1 = doc.getElementsByTagName("ToUserName").toString();
+            String s1 = doc.getElementsByTagName("ToUserName").item(0).getTextContent();
             String s2 = doc.getElementsByTagName("Content").toString();
-            test = "hello"+s1+s2;
-            return test;
+            String s3 = doc.getElementsByTagName("FromUserName").item(0).getTextContent();
+            System.out.println(s1+":"+s2);
+
+            Document result = dbFactory.newDocumentBuilder().newDocument();
+            Element element = doc.createElement("ToUserName");
+            element.appendChild(doc.createTextNode(s3));
+            result.appendChild(element);
+            element = doc.createElement("FromUserName");
+            element.appendChild(doc.createTextNode(s1));
+            result.appendChild(element);
+            element = doc.createElement("CreateTime");
+            element.appendChild(doc.createTextNode(Long.toString(System.currentTimeMillis())));
+            result.appendChild(element);
+            element = doc.createElement("MsgType");
+            element.appendChild(doc.createTextNode("text"));
+            result.appendChild(element);
+            element = doc.createElement("Content");
+            element.appendChild(doc.createTextNode("hello"));
+            result.appendChild(element);
+            System.out.println(result.toString());
+            return result.toString();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e){
